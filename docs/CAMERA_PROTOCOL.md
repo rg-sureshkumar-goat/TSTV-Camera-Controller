@@ -6,8 +6,8 @@ The confirmed camera facts that the app's command table is built from. Sources: 
 
 | | |
 |---|---|
-| Show cameras | **Panasonic AW-HE40** (×3) at `192.168.0.11`, `.12` and `.13`, *assumed* to be the RP50's three cameras. Still to be confirmed against the RP50 SYSTEM menu. |
-| Other camera | **Panasonic AW-HE2** at `192.168.0.10`, a compact camera with fewer controls. Its role is unknown until the RP50 check. |
+| Show cameras | **Panasonic AW-HE40** (×3), confirmed by RG. Starting order: Cam 1 = `192.168.0.11`, Cam 2 = `.12`, Cam 3 = `.13`. The order can be changed on the settings screen. |
+| Other camera | **Panasonic AW-HE2** at `192.168.0.10`. **Not used by this app.** The auto-discover feature must not add it as a show camera. |
 | Network | `192.168.0.x`, subnet mask `255.255.255.0`. The laptop worked at `192.168.0.250` with a manual IP. |
 | Login | **None.** Every control and query command answered HTTP 200 with no username or password. On these cameras, User auth is off. |
 | Control | HTTP GET, `aw_ptz` (pan/tilt/lens/presets) and `aw_cam` (image settings). |
@@ -135,13 +135,13 @@ A compact camera with a much smaller command set. Per its own interface spec (V1
 - Supports zoom (`#Z`), iris (`#AXI`, `#GI`, `#D3`), white balance mode (`QAW`) and iris auto (`QRS`). Gain, focus, shutter and detail queries returned `ER1`.
 - At probe time: iris auto (`d31`, `ORS:1`), WB `OAW:5`, last preset `s00` (preset 1).
 
-If the HE2 turns out to be one of the show cameras, the app needs a reduced control panel for it. That decision waits for the RP50 cross-check.
+RG confirmed on 19 Nov 2026 that the HE2 is not one of the show cameras, so v1 has no control panel for it.
 
 ## Still to confirm
 
 | Item | Confirmed by |
 |---|---|
-| Which IP is RP50 Cam 1 / 2 / 3, and what the AW-HE2 is used for | RG, from the RP50 SYSTEM menu (Checkpoint 1 test) |
+| Which AW-HE40 the crew calls Cam 1 / 2 / 3 (the RP50 doesn't show its IPs) | Checkpoint 2: assign on the settings screen, then check each tile against the studio monitor |
 | Nothing moved during the probe | RG (Checkpoint 1 test) |
 | Detail (`QDT`) and fine pedestal (`QTP`) original values | The app reads and logs them before Checkpoint 4 changes anything |
 | Whether R/B pedestal exists on the HE40 at all | Checkpoint 4, by checking the camera's menu |

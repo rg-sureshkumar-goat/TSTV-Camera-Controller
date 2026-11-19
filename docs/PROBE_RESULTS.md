@@ -1,6 +1,6 @@
 # Probe Results — Checkpoint 1
 
-> **Status:** probe run on 19 Nov 2026 at 15:13 CST. Found **four** Panasonic cameras: three **AW-HE40** and one **AW-HE2**. The RP50 cross-check is still open: which IPs are Cam 1, 2 and 3 on the RP50?
+> **Status:** probe run on 19 Nov 2026 at 15:13 CST. Found **four** Panasonic cameras: three **AW-HE40** and one **AW-HE2**. RG confirmed the three AW-HE40s are the show cameras. The RP50 still worked normally after the probe.
 >
 > The probe is **read-only**. It sends only query commands (`aw_cam` commands starting with `Q`, `aw_ptz` commands with no value) and plain web-page requests. Nothing moves, nothing is saved, no setting changes.
 >
@@ -52,16 +52,16 @@ Only needed if step 4 showed `169.254.x.x`.
 
 ## RP50 cross-check
 
-The RP50 column is still to be filled in from the RP50's SYSTEM menu.
+**Result (19 Nov 2026):** RG couldn't find the per-camera IP addresses in the RP50's menu. Decision: the three **AW-HE40s are the show cameras**, and the AW-HE2 at `192.168.0.10` is not used by this app.
 
-| RP50 camera number | IP in the RP50 SYSTEM menu | Camera found at that IP | Match? |
-|---|---|---|---|
-| Cam 1 | | | |
-| Cam 2 | | | |
-| Cam 3 | | | |
-| (any other number) | | | |
+Starting camera numbers in the app follow IP order. They can be changed on the app's settings screen (Checkpoint 2) if the crew's Cam 1/2/3 differ:
 
-Cameras found by the probe: `192.168.0.10` (AW-HE2), `192.168.0.11`, `192.168.0.12`, `192.168.0.13` (all AW-HE40).
+| App camera | IP | Model |
+|---|---|---|
+| Cam 1 | `192.168.0.11` | AW-HE40 |
+| Cam 2 | `192.168.0.12` | AW-HE40 |
+| Cam 3 | `192.168.0.13` | AW-HE40 |
+| (not used) | `192.168.0.10` | AW-HE2 |
 
 ## Run details
 
@@ -142,9 +142,9 @@ Decoded from `#PE00` (presets 1–40), `#PE01` (41–80) and `#PE02` (81–100),
 
 - [x] The report finds all three cameras. It found three AW-HE40s, plus an AW-HE2.
 - [x] Each camera answers the model query (`QID`).
-- [ ] The IPs match the RP50's SYSTEM menu (cross-check table above).
+- [x] The IPs match the RP50's SYSTEM menu. The IPs aren't shown on the RP50, so RG confirmed the three AW-HE40s are the show cameras instead.
 - [ ] Nothing moved, zoomed, refocused or changed picture during the probe.
-- [ ] The RP50 still controls all three cameras afterwards.
+- [x] The RP50 still controls all three cameras afterwards.
 
 ## Raw report
 
