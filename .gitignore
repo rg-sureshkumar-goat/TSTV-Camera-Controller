@@ -3,3 +3,9 @@
 
 # Raw probe output (the cleaned-up report goes into docs/PROBE_RESULTS.md)
 tools/tstv_camera_probe_report.txt
+
+# Build output and dependencies
+node_modules/
+out/
+dist/
+*.tsbuildinfo
