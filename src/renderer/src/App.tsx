@@ -75,7 +75,7 @@ export function App(): React.JSX.Element {
           Cam Controller <span className="brand-sub">TSTV</span>
         </div>
         <div className="topbar-right">
-          <span className="checkpoint-note">Checkpoint 3 · movement and lens · keys 1 2 3 select a camera</span>
+          <span className="checkpoint-note">Checkpoint 4 · movement, lens and image · keys 1 2 3 select a camera</span>
           <button
             className="btn"
             onClick={() => {

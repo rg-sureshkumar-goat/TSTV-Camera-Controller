@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import type { AppSettings, CameraSlot, CameraStatus } from '@shared/types'
-import { CameraConnection, type SenderFactory } from './cameraConnection'
+import { CameraConnection, type OriginalsAccess, type SenderFactory } from './cameraConnection'
 import { httpGet } from './httpClient'
 
 const defaultSenderFactory: SenderFactory = (ip) => (path, timeoutMs) => httpGet(ip, path, timeoutMs)
@@ -9,10 +9,10 @@ const defaultSenderFactory: SenderFactory = (ip) => (path, timeoutMs) => httpGet
 export class CameraManager extends EventEmitter {
   private readonly connections: CameraConnection[]
 
-  constructor(settings: AppSettings, makeSender: SenderFactory = defaultSenderFactory) {
+  constructor(settings: AppSettings, originals?: OriginalsAccess, makeSender: SenderFactory = defaultSenderFactory) {
     super()
     this.connections = settings.cameras.map((config, i) => {
-      const c = new CameraConnection(i as CameraSlot, config, makeSender)
+      const c = new CameraConnection(i as CameraSlot, config, makeSender, originals)
       c.on('status', () => this.emit('statuses', this.statuses()))
       return c
     })

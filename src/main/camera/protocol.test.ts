@@ -37,7 +37,7 @@ describe('safety gate', () => {
     for (const c of moves) expect(() => assertAllowed(c), `${c.endpoint} ${c.cmd}`).not.toThrow()
   })
 
-  it('blocks presets, image settings, power, absolute moves and malformed values', () => {
+  it('blocks presets, scene files, OSD menu, power, absolute moves and malformed values', () => {
     const writes = [
       { endpoint: 'aw_ptz', cmd: '#PTS0050' },
       { endpoint: 'aw_ptz', cmd: '#PTS100' },
@@ -53,10 +53,9 @@ describe('safety gate', () => {
       { endpoint: 'aw_ptz', cmd: '#APC80008000' },
       { endpoint: 'aw_ptz', cmd: '#UPVS250' },
       { endpoint: 'aw_ptz', cmd: '#RZL1' },
-      { endpoint: 'aw_cam', cmd: 'OGU:08' },
-      { endpoint: 'aw_cam', cmd: 'OWS' },
-      { endpoint: 'aw_cam', cmd: 'OAS' },
       { endpoint: 'aw_cam', cmd: 'XSF:1' },
+      { endpoint: 'aw_cam', cmd: 'OUS:1' },
+      { endpoint: 'aw_cam', cmd: 'OGU:09' },
       { endpoint: 'aw_cam', cmd: 'QGU:08' },
       { endpoint: 'aw_cam', cmd: 'Q' }
     ] as const

@@ -21,8 +21,39 @@ export type ConnectionState =
   | 'login-required' // camera answered HTTP 401 (User auth turned on)
   | 'not-a-camera' // something answered, but not a Panasonic camera
 
+/** OAW codes: 0 ATW, 1 AWB A, 2 AWB B, 4 3200K, 5 5600K, 9 VAR. */
+export type WhiteBalanceMode = '0' | '1' | '2' | '4' | '5' | '9'
+/** OSH codes: 0 off, 3 1/100, 5 1/250, 6 1/500, 7 1/1000, 8 1/2000, 9 1/4000, A 1/10000, B Synchro-Scan. */
+export type ShutterCode = '0' | '3' | '5' | '6' | '7' | '8' | '9' | 'A' | 'B'
+
+/** Image settings read back from the camera (Checkpoint 4). Undefined = unknown or not available. */
+export interface ImageValues {
+  gainDb?: number | 'auto' // QGU
+  pedestal?: number // QTP, −10…+10
+  wbMode?: WhiteBalanceMode // QAW
+  rGain?: number // QRI, −30…+30 (only in AWB A/B)
+  bGain?: number // QBI
+  shutterCode?: string // QSH
+  detail?: 0 | 1 | 2 // QDT: off / low / high
+}
+
+export type ImageAction =
+  | { kind: 'gain'; value: number | 'auto' }
+  | { kind: 'pedestal'; value: number }
+  | { kind: 'rGain'; value: number }
+  | { kind: 'bGain'; value: number }
+  | { kind: 'whiteBalance'; mode: WhiteBalanceMode }
+  | { kind: 'awb' }
+  | { kind: 'abb' }
+  | { kind: 'shutter'; code: ShutterCode }
+  | { kind: 'detail'; value: 0 | 1 | 2 }
+  | { kind: 'restoreOriginals' }
+
 /** Current values read back from the camera with query commands (read-only). */
 export interface CameraValues {
+  image?: ImageValues
+  /** False when the camera refuses the R/B pedestal query (AW-HE40: not available over IP). */
+  rbPedestalSupported?: boolean
   model?: string // QID, e.g. "AW-HE40"
   firmware?: string // QSV
   power?: 'on' | 'standby' | 'powering-on' // #O
@@ -46,6 +77,8 @@ export interface CameraStatus {
   values: CameraValues
   /** Milliseconds since epoch of the last good answer. */
   lastSeen?: number
+  /** Image settings saved the first time this app saw this camera, for "Restore original settings". */
+  originals?: { values: ImageValues; savedAt: string }
 }
 
 export type NetworkProblem =
@@ -95,6 +128,8 @@ export interface CamApi {
   /** Stop every move on one camera, or on all cameras when slot is omitted. */
   stopMotion(slot?: CameraSlot): void
   lens(slot: CameraSlot, action: LensAction): Promise<void>
+  /** Change an image setting (Checkpoint 4). Resolves after the camera accepts it. */
+  image(slot: CameraSlot, action: ImageAction): Promise<void>
   getSettings(): Promise<AppSettings>
   saveSettings(settings: AppSettings): Promise<AppSettings>
   discover(): Promise<DiscoveryResult>

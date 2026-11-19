@@ -1,10 +1,11 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
-import type { AppSettings, LensAction, NetworkStatus } from '@shared/types'
+import type { AppSettings, ImageAction, LensAction, NetworkStatus } from '@shared/types'
 import { CameraManager } from './camera/cameraManager'
 import { discoverCameras } from './discovery'
 import { checkNetwork } from './network'
+import { OriginalsStore } from './originalsStore'
 import { SettingsStore } from './settings'
 
 const NETWORK_CHECK_MS = 2000
@@ -69,11 +70,11 @@ function createWindow(): void {
   }
 
   // Developer self-test against the fake cameras (CAMCTRL_SELFTEST=1). Never runs otherwise.
-  if (process.env.CAMCTRL_SELFTEST === '1') {
+  if (process.env.CAMCTRL_SELFTEST === '1' || process.env.CAMCTRL_SELFTEST === 'image') {
     mainWindow.webContents.once('did-finish-load', () => {
       setTimeout(() => {
-        void import('./devSelfTest').then(({ runSelfTest }) =>
-          runSelfTest(mainWindow!, (m) => console.log(`[selftest ${new Date().toISOString().slice(11, 23)}] ${m}`)).catch(
+        void import('./devSelfTest').then(({ runSelfTest, runImageSelfTest }) =>
+          (process.env.CAMCTRL_SELFTEST === 'image' ? runImageSelfTest : runSelfTest)(mainWindow!, (m) => console.log(`[selftest ${new Date().toISOString().slice(11, 23)}] ${m}`)).catch(
             (err) => console.log(`[selftest ${new Date().toISOString().slice(11, 23)}] FAILED: ${(err as Error).stack}`)
           )
         )
@@ -113,6 +114,11 @@ function registerIpc(): void {
     if (!action || !kinds.includes(action.kind)) throw new Error('Unknown lens action')
     await cam.lens(action)
   })
+  ipcMain.handle('image:action', async (_e, slot, action: ImageAction) => {
+    const cam = manager.camera(slot)
+    if (!cam) throw new Error('No such camera')
+    await cam.image(action) // values are validated again in imageCommand and the safety gate
+  })
   ipcMain.handle('settings:get', () => settings)
   ipcMain.handle('settings:save', (_e, next: AppSettings) => {
     settings = store.save(next)
@@ -133,7 +139,7 @@ app.whenReady().then(() => {
   settings = store.load()
   network = checkNetwork(settings.cameras.map((c) => c.ip))
 
-  manager = new CameraManager(settings)
+  manager = new CameraManager(settings, new OriginalsStore(app.getPath('userData')))
   manager.on('statuses', (statuses) => send('cameras:statuses', statuses))
 
   registerIpc()

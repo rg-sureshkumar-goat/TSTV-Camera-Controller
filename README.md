@@ -6,7 +6,7 @@ A Mac and Windows app that replaces TSTV's Panasonic AW-RP50 for the studio's th
 - Camera facts and commands: [docs/CAMERA_PROTOCOL.md](docs/CAMERA_PROTOCOL.md)
 - Decisions made so far: [docs/DECISIONS.md](docs/DECISIONS.md)
 
-> **Status: Checkpoint 3 (movement and lens) passed its studio test.** The app moves the selected camera (pan/tilt joystick, zoom, focus, iris, speed). Image settings, saved angles and the playlist come in later checkpoints. Installers for the crew come in Checkpoint 8. Until then, run it from source as below.
+> **Status: Checkpoint 4 (image settings), waiting for its studio test.** The app moves the selected camera (pan/tilt joystick, zoom, focus, iris, speed) and adjusts its picture (gain, pedestal, white balance with AWB/ABB, R/B gain, shutter, detail) in the Control Panel's **Image** tab. Saved angles, live preview and the playlist come in later checkpoints. Installers for the crew come in Checkpoint 8. Until then, run it from source as below.
 
 ### Safety: how moves stop
 
@@ -18,6 +18,10 @@ Every pan/tilt, zoom and focus move stops:
 - if the window stops confirming that a control is still held for 0.7 s (**dead-man switch**).
 
 After any of these safety stops, that control is **locked** until you release it and press again, so a stuck control can never restart a camera. The red **Stop all** button stops every camera at once. The app only ever sends stops for moves it started itself, so it never interrupts the RP50.
+
+### Image settings and "Restore original settings"
+
+The first time the app reads a camera's picture settings, it saves them on the laptop (`image-originals.json` in the app's settings folder). **Image → Restore original settings…** puts that camera back to them, after a confirm step. Changes from the −/+ buttons are sent once you stop clicking (after 0.4 s), because each change is written to the camera's memory. The AW-HE40 has no R/B pedestal over the network, so the app shows that as not available.
 
 ## Run it from source (Mac or Windows)
 
@@ -51,6 +55,7 @@ The app starts with the studio's order: **Cam 1 = `192.168.0.13`, Cam 2 = `.11`,
 | `npm run dev` | Run with live reload while editing |
 | `npm test` | Unit tests (protocol decoding, read-only safety gate, command queue timing, network check, settings) |
 | `npm run typecheck` | TypeScript check |
+| `CAMCTRL_SELFTEST=image npm start` (same setup) | Image-settings self-test: changes, expected refusals, then Restore original settings on Cam 1 |
 | `CAMCTRL_SELFTEST=1 npm start` (with `npm run mock-cameras` running, and the app's Settings pointed at `127.0.0.1:8081–8083`) | Self-test: drives the real window with mouse and keyboard input (drag, release, window blur, camera switch, cable pull mid-move, lens commands). Watch the fake cameras' log: every MOVING must be followed by a stop. Add `CAMCTRL_DEBUG_MOTION=1` to log every move/stop the app sends |
 | `npm run mock-cameras` | Three fake AW-HE40s on `127.0.0.1:8081–8083` for testing away from the studio. Type `1`/`2`/`3` + Enter to unplug/replug one. The fake cameras warn if the app ever sends a write command or sends faster than 130 ms |
 

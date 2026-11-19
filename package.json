@@ -1,7 +1,7 @@
 {
   "name": "tstv-cam-controller",
   "productName": "Cam Controller",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "TSTV Cam Controller: controls the studio's Panasonic PTZ cameras (replaces the AW-RP50)",
   "main": "./out/main/index.js",
   "private": true,

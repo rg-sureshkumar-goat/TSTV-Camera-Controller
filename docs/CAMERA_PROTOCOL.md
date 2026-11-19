@@ -85,7 +85,7 @@ The speed control (low to high) maps the operator's speed setting onto how far f
 |---|---|---|---|---|
 | Gain | `QGU` → `OGU:[hh]` | `OGU:[hh]` | `08` = 0 dB, then 3 dB steps (`0B` = 3 dB … `38` = 48 dB), `80` = auto. **dB = hex − 8** | ✅ 12 / 15 / 27 dB |
 | Master pedestal | `QTP` → `OTP:[hhh]` | `OTP:[hhh]` | `000`–`096`–`12C` = −10…0…+10 | (not probed) |
-| Master pedestal (coarse) | `QTD` → `OTD:[hh]` | `OTD:[hh]` | `00`–`1E`–`3C` = −10…0…+10. Probe values don't decode to whole steps, so the app uses `QTP` | ✅ raw `14` / `11` / `08` |
+| Master pedestal (coarse) | `QTD` → `OTD:[hh]` | `OTD:[hh]` | `00`–`1E`–`3C` = −10…0…+10. Probe values don't decode to whole steps. **The app uses `QTP`/`OTP` only** | ✅ raw `14` / `11` / `08` |
 | R gain | `QRI` → `ORI:[hhh]` | `ORI:[hhh]` | `000`–`096`–`12C` = −30…0…+30. **Setting = (hex − 0x96) / 5**. Only in AWB A/B mode (`ER3` in preset modes) | ✅ `.13`: +8 |
 | B gain | `QBI` → `OBI:[hhh]` | `OBI:[hhh]` | Same as R gain | ✅ `.13`: +5 |
 | R/B pedestal | `QRP` / `QBP` | `ORP` / `OBP` | **Not listed for AW-HE40** (spec: HE120/HE130 only). `QBS` → `ER1` | ❌ |

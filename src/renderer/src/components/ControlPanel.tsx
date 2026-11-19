@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { CameraStatus, LensAction } from '@shared/types'
 import { HoldButton, Joystick, Toggle } from './controls'
+import { ImagePanel } from './ImagePanel'
 import { STATE_LABEL } from './status'
 
 const SPEED_LABELS = ['', 'Very slow', 'Slow', 'Medium', 'Fast', 'Very fast']
@@ -18,6 +19,7 @@ const cap = (s?: string): string | undefined => (s ? s[0].toUpperCase() + s.slic
 
 export function ControlPanel({ status }: { status?: CameraStatus }): React.JSX.Element {
   const [speed, setSpeed] = useState(3)
+  const [tab, setTab] = useState<'move' | 'image'>('move')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [irisDraft, setIrisDraft] = useState<number | null>(null)
@@ -81,6 +83,19 @@ export function ControlPanel({ status }: { status?: CameraStatus }): React.JSX.E
 
       {!live && <div className="notice">{status ? `${status.name}: ${STATE_LABEL[status.state]}. Controls are off until it reconnects.` : 'No camera'}</div>}
 
+      <div className="tabs" role="tablist">
+        <button role="tab" className={tab === 'move' ? 'on' : ''} onClick={() => setTab('move')}>
+          Movement &amp; lens
+        </button>
+        <button role="tab" className={tab === 'image' ? 'on' : ''} onClick={() => setTab('image')}>
+          Image
+        </button>
+      </div>
+
+      {tab === 'image' && <ImagePanel status={status} />}
+
+      {tab === 'move' && (
+      <>
       {/* key={slot}: switching camera rebuilds the controls, which releases (and stops) anything held on the old camera */}
       <div className="controls-grid" key={slot}>
         <div className="control-col">
@@ -170,7 +185,8 @@ export function ControlPanel({ status }: { status?: CameraStatus }): React.JSX.E
         <Row label="Focus" value={cap(v.focusMode)} />
         <Row label="Iris" value={v.irisMode ? `${cap(v.irisMode)}${v.irisPos ? ` · ${v.irisPos}` : ''}` : undefined} />
       </div>
-      <div className="muted small">Image settings (gain, colour, shutter, detail) become adjustable in Checkpoint 4.</div>
+      </>
+      )}
     </div>
   )
 }

@@ -45,7 +45,7 @@ describe('per-camera command queue', () => {
     const { queue, sends } = setup()
     expect(() => queue.enqueue({ endpoint: 'aw_ptz', cmd: '#M05' })).toThrow(BlockedCommandError)
     expect(() => queue.enqueue({ endpoint: 'aw_ptz', cmd: '#R00' })).toThrow(BlockedCommandError)
-    expect(() => queue.enqueue({ endpoint: 'aw_cam', cmd: 'OGU:08' })).toThrow(BlockedCommandError)
+    expect(() => queue.enqueue({ endpoint: 'aw_cam', cmd: 'XSF:1' })).toThrow(BlockedCommandError)
     await new Promise((r) => setTimeout(r, 20))
     expect(sends).toHaveLength(0)
   })

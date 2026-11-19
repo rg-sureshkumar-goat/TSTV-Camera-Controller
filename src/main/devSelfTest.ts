@@ -6,6 +6,43 @@ import type { BrowserWindow } from 'electron'
  * mouse/keyboard events and logs each step, so the fake cameras' log shows
  * whether every move was followed by a stop.
  */
+/** Image-settings self-test (CAMCTRL_SELFTEST=image): change, refusals, then restore originals on Cam 1. */
+export async function runImageSelfTest(win: BrowserWindow, log: (msg: string) => void): Promise<void> {
+  const wc = win.webContents
+  const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
+  const image = (action: object): Promise<string> =>
+    wc.executeJavaScript(
+      `window.camApi.image(0, ${JSON.stringify(action)}).then(() => 'ok', (e) => 'error: ' + e.message.replace(/^Error invoking remote method '[^']+': (Error: )?/, ''))`
+    )
+  const values = (): Promise<string> =>
+    wc.executeJavaScript(`window.camApi.getStatuses().then((s) => JSON.stringify(s[0].values.image) + ' originals=' + (s[0].originals ? 'saved' : 'none'))`)
+  await sleep(3000)
+  log(`Cam 1 at start: ${await values()}`)
+  for (const [label, action] of [
+    ['gain 30 dB', { kind: 'gain', value: 30 }],
+    ['pedestal +2', { kind: 'pedestal', value: 2 }],
+    ['R gain +10 (AWB B mode)', { kind: 'rGain', value: 10 }],
+    ['white balance 5600K', { kind: 'whiteBalance', mode: '5' }],
+    ['R gain +3 in 5600K (should be refused)', { kind: 'rGain', value: 3 }],
+    ['AWB in 5600K (should be refused)', { kind: 'awb' }],
+    ['white balance AWB A', { kind: 'whiteBalance', mode: '1' }],
+    ['run AWB', { kind: 'awb' }],
+    ['run ABB', { kind: 'abb' }],
+    ['shutter Synchro-Scan', { kind: 'shutter', code: 'B' }],
+    ['detail High', { kind: 'detail', value: 2 }],
+    ['gain 13 dB (not a 3 dB step, should be refused)', { kind: 'gain', value: 13 }]
+  ] as const) {
+    log(`${label} → ${await image(action)}`)
+  }
+  log(`Cam 1 after changes: ${await values()}`)
+  log(`restore originals → ${await image({ kind: 'restoreOriginals' })}`)
+  log(`Cam 1 after restore: ${await values()}`)
+  // Show the Image tab for the screenshot.
+  await wc.executeJavaScript(`[...document.querySelectorAll('.tabs button')].find((b) => b.textContent === 'Image').click()`)
+  await sleep(500)
+  log('IMAGE SELF-TEST DONE')
+}
+
 export async function runSelfTest(win: BrowserWindow, log: (msg: string) => void): Promise<void> {
   const wc = win.webContents
   const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))

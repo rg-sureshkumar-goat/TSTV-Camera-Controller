@@ -1,3 +1,4 @@
+import { isImageSettingCommand } from './imageSettings'
 // Panasonic "HD Integrated Camera Interface" (aw_ptz / aw_cam over HTTP).
 // Command meanings and value tables: docs/CAMERA_PROTOCOL.md.
 
@@ -11,11 +12,12 @@ export interface CameraCommand {
 
 /**
  * SAFETY GATE. Every command goes through `assertAllowed`. Allowed are:
- *  - read-only queries (always), and
- *  - the movement and lens commands below (from Checkpoint 3).
- * Everything else is refused: image settings (Checkpoint 4), presets
- * recall/store/delete (Checkpoint 6), power, absolute positioning, and any
- * command not listed here. Widen this list only in the checkpoint that needs it.
+ *  - read-only queries (always),
+ *  - the movement and lens commands below (from Checkpoint 3), and
+ *  - image settings with in-range values (Checkpoint 4, see imageSettings.ts).
+ * Everything else is refused: presets recall/store/delete (Checkpoint 6),
+ * scene files, the OSD menu, power, absolute positioning, and any command not
+ * listed. Widen this list only in the checkpoint that needs it.
  */
 const TWO_DIGIT_SPEED = '(0[1-9]|[1-9][0-9])' // 01–99; 50 = stop
 const MOVEMENT_AND_LENS: { endpoint: Endpoint; pattern: RegExp; what: string }[] = [
@@ -69,7 +71,7 @@ export class BlockedCommandError extends Error {
 }
 
 export function assertAllowed(command: CameraCommand): void {
-  if (isReadOnly(command) || isMovementOrLens(command)) return
+  if (isReadOnly(command) || isMovementOrLens(command) || isImageSettingCommand(command)) return
   throw new BlockedCommandError(command)
 }
 

@@ -699,3 +699,91 @@ input.invalid {
   padding: 0 5px;
   margin-left: 6px;
 }
+
+/* ---------- Checkpoint 4: tabs and image settings ---------- */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.tabs button {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.tabs button.on {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+.image-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.image-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.image-row.wrap {
+  flex-wrap: wrap;
+}
+.image-label {
+  width: 150px;
+  flex: none;
+  color: var(--muted);
+}
+.image-label.short {
+  width: auto;
+  margin-left: 8px;
+}
+.indent {
+  margin-left: 160px;
+}
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.stepper .btn {
+  width: 30px;
+  padding: 3px 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+.stepper-value {
+  min-width: 52px;
+  text-align: center;
+  font-weight: 600;
+}
+.stepper-value.pending {
+  color: var(--wait);
+}
+select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 8px;
+  font: inherit;
+}
+.restore {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.confirm-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

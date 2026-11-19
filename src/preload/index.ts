@@ -16,6 +16,7 @@ const api: CamApi = {
   keepalive: (slot) => ipcRenderer.send('motion:keepalive', slot),
   stopMotion: (slot) => ipcRenderer.send('motion:stop', slot),
   lens: (slot, action) => ipcRenderer.invoke('lens:action', slot, action),
+  image: (slot, action) => ipcRenderer.invoke('image:action', slot, action),
   getSettings: () => ipcRenderer.invoke('settings:get'),
   saveSettings: (settings: AppSettings) => ipcRenderer.invoke('settings:save', settings),
   discover: () => ipcRenderer.invoke('cameras:discover'),
