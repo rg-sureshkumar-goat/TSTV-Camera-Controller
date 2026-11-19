@@ -14,7 +14,7 @@ You only need to do steps 1–3 once per laptop.
 
 1. **Install Node.js** (free): download the **LTS** installer from [nodejs.org](https://nodejs.org) and run it. Use the default options.
 2. **Get the code:** on the [GitHub page](https://github.com/rg-sureshkumar-goat/TSTV-Camera-Controller), click **Code → Download ZIP** and unzip it. Or, if you use git, `git clone` the repo.
-3. **Install the app's parts.** Open Terminal (Mac) or PowerShell (Windows), go into the unzipped folder, and run:
+3. **Install the app's parts.** Open Terminal (Mac) or **Command Prompt** (Windows; PowerShell can block npm), go into the unzipped folder, and run:
    ```
    npm install
    ```
