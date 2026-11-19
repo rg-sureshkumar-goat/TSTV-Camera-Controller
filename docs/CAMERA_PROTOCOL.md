@@ -6,7 +6,7 @@ The confirmed camera facts that the app's command table is built from. Sources: 
 
 | | |
 |---|---|
-| Show cameras | **Panasonic AW-HE40** (×3), confirmed by RG. Starting order: Cam 1 = `192.168.0.11`, Cam 2 = `.12`, Cam 3 = `.13`. The order can be changed on the settings screen. |
+| Show cameras | **Panasonic AW-HE40** (×3). Crew order, confirmed at the Checkpoint 2 studio test: **Cam 1 = `192.168.0.13`, Cam 2 = `192.168.0.11`, Cam 3 = `192.168.0.12`**. |
 | Other camera | **Panasonic AW-HE2** at `192.168.0.10`. **Not used by this app.** The auto-discover feature must not add it as a show camera. |
 | Network | `192.168.0.x`, subnet mask `255.255.255.0`. The laptop worked at `192.168.0.250` with a manual IP. |
 | Login | **None.** Every control and query command answered HTTP 200 with no username or password. On these cameras, User auth is off. |
@@ -141,7 +141,6 @@ RG confirmed on 19 Nov 2026 that the HE2 is not one of the show cameras, so v1 h
 
 | Item | Confirmed by |
 |---|---|
-| Which AW-HE40 the crew calls Cam 1 / 2 / 3 (the RP50 doesn't show its IPs) | Checkpoint 2: assign on the settings screen, then check each tile against the studio monitor |
 | Detail (`QDT`) and fine pedestal (`QTP`) original values | The app reads and logs them before Checkpoint 4 changes anything |
 | Whether R/B pedestal exists on the HE40 at all | Checkpoint 4, by checking the camera's menu |
 | Preset bitmap bit order, and that `#C` (delete) works on the HE40 | Checkpoint 6 |

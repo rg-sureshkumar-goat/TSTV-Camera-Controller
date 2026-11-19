@@ -3,12 +3,15 @@ import path from 'node:path'
 import type { AppSettings, CameraConfig } from '@shared/types'
 import { isIPv4 } from './network'
 
-/** Defaults from the Checkpoint 1 probe (docs/PROBE_RESULTS.md): the three AW-HE40s, in IP order. */
+/**
+ * The studio's three AW-HE40s, in the crew's order (confirmed by RG at the
+ * Checkpoint 2 studio test): Cam 1 = .13, Cam 2 = .11, Cam 3 = .12.
+ */
 export const DEFAULT_SETTINGS: AppSettings = {
   cameras: [
-    { name: 'Cam 1', ip: '192.168.0.11' },
-    { name: 'Cam 2', ip: '192.168.0.12' },
-    { name: 'Cam 3', ip: '192.168.0.13' }
+    { name: 'Cam 1', ip: '192.168.0.13' },
+    { name: 'Cam 2', ip: '192.168.0.11' },
+    { name: 'Cam 3', ip: '192.168.0.12' }
   ]
 }
 

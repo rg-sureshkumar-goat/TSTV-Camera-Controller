@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest'
 import { DEFAULT_SETTINGS, isValidCameraAddress, normalizeSettings, SettingsStore } from './settings'
 
 describe('settings', () => {
-  it('defaults to the three AW-HE40s from the probe', () => {
-    expect(DEFAULT_SETTINGS.cameras.map((c) => c.ip)).toEqual(['192.168.0.11', '192.168.0.12', '192.168.0.13'])
+  it("defaults to the three AW-HE40s in the crew's order (Cam 1 = .13, Cam 2 = .11, Cam 3 = .12)", () => {
+    expect(DEFAULT_SETTINGS.cameras.map((c) => c.ip)).toEqual(['192.168.0.13', '192.168.0.11', '192.168.0.12'])
   })
 
   it('validates addresses', () => {

@@ -6,7 +6,7 @@ A Mac and Windows app that replaces TSTV's Panasonic AW-RP50 for the studio's th
 - Camera facts and commands: [docs/CAMERA_PROTOCOL.md](docs/CAMERA_PROTOCOL.md)
 - Decisions made so far: [docs/DECISIONS.md](docs/DECISIONS.md)
 
-> **Status: Checkpoint 2 (app shell).** The app connects to the cameras and shows their status and current values. It sends **only read-only queries**: nothing moves or changes. Installers for the crew come in Checkpoint 8. Until then, run it from source as below.
+> **Status: Checkpoint 2 (app shell) passed its studio test on Mac and Windows.** The app connects to the cameras and shows their status and current values. It sends **only read-only queries**: nothing moves or changes. Installers for the crew come in Checkpoint 8. Until then, run it from source as below.
 
 ## Run it from source (Mac or Windows)
 
@@ -30,7 +30,7 @@ To update to a newer checkpoint later, download the ZIP again (or `git pull`), t
 
 Plug the USB-C Ethernet adapter into a free port on the same switch as the RP50. If the app shows a yellow **"no address on the camera network"** warning, follow the steps in the warning to set a manual IP (for example `192.168.0.250`, mask `255.255.255.0`).
 
-The app starts with Cam 1 = `192.168.0.11`, Cam 2 = `.12`, Cam 3 = `.13`. Change them under **Settings**, or use **Find cameras** there. Settings are saved on the laptop.
+The app starts with the studio's order: **Cam 1 = `192.168.0.13`, Cam 2 = `.11`, Cam 3 = `.12`**. To change them, go to **Settings** (or use **Find cameras** there). Settings are saved on the laptop.
 
 ## For developers
 

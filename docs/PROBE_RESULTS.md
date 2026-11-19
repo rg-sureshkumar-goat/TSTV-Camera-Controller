@@ -54,13 +54,13 @@ Only needed if step 4 showed `169.254.x.x`.
 
 **Result (19 Nov 2026):** RG couldn't find the per-camera IP addresses in the RP50's menu. Decision: the three **AW-HE40s are the show cameras**, and the AW-HE2 at `192.168.0.10` is not used by this app.
 
-Starting camera numbers in the app follow IP order. They can be changed on the app's settings screen (Checkpoint 2) if the crew's Cam 1/2/3 differ:
+The crew's camera numbers were confirmed at the Checkpoint 2 studio test, by checking each app tile against the studio monitor:
 
-| App camera | IP | Model |
+| Crew camera | IP | Model |
 |---|---|---|
-| Cam 1 | `192.168.0.11` | AW-HE40 |
-| Cam 2 | `192.168.0.12` | AW-HE40 |
-| Cam 3 | `192.168.0.13` | AW-HE40 |
+| Cam 1 | `192.168.0.13` | AW-HE40 |
+| Cam 2 | `192.168.0.11` | AW-HE40 |
+| Cam 3 | `192.168.0.12` | AW-HE40 |
 | (not used) | `192.168.0.10` | AW-HE2 |
 
 ## Run details

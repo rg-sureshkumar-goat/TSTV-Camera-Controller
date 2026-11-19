@@ -26,3 +26,15 @@ Choices made during the build, with the reason, so later checkpoints follow them
 **Answered by the Checkpoint 1 probe** (brief's open question "Camera login").
 
 - All three AW-HE40s accept control and video with no username or password (User auth is off). The app needs no login screen in v1. If a camera starts replying HTTP 401, the app says so plainly instead of calling it offline.
+
+## 2026-11-19 · Camera order: Cam 1 = .13, Cam 2 = .11, Cam 3 = .12
+
+**Confirmed by RG at the Checkpoint 2 studio test**, which passed on Mac and Windows.
+
+| Crew camera | IP |
+|---|---|
+| Cam 1 | `192.168.0.13` |
+| Cam 2 | `192.168.0.11` |
+| Cam 3 | `192.168.0.12` |
+
+These are now the app's default settings, so a fresh install starts in the right order. The fake cameras (`npm run mock-cameras`) use the same order.
