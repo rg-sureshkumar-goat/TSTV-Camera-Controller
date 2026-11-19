@@ -6,7 +6,7 @@ A Mac and Windows app that replaces TSTV's Panasonic AW-RP50 for the studio's th
 - Camera facts and commands: [docs/CAMERA_PROTOCOL.md](docs/CAMERA_PROTOCOL.md)
 - Decisions made so far: [docs/DECISIONS.md](docs/DECISIONS.md)
 
-> **Status: Checkpoint 3 (movement and lens), waiting for its studio test.** The app moves the selected camera (pan/tilt joystick, zoom, focus, iris, speed). Image settings, saved angles and the playlist come in later checkpoints. Installers for the crew come in Checkpoint 8. Until then, run it from source as below.
+> **Status: Checkpoint 3 (movement and lens) passed its studio test.** The app moves the selected camera (pan/tilt joystick, zoom, focus, iris, speed). Image settings, saved angles and the playlist come in later checkpoints. Installers for the crew come in Checkpoint 8. Until then, run it from source as below.
 
 ### Safety: how moves stop
 

@@ -45,3 +45,7 @@ These are now the app's default settings, so a fresh install starts in the right
 
 - **What:** pan/tilt is driven by an on-screen joystick (mouse or trackpad) only. v1 has no arrow-key or USB game-controller pan/tilt.
 - **Effect:** keyboard shortcuts stay limited to selecting cameras (1, 2, 3). A controller can be added later without changing the camera code, because every move goes through the same main-process motion controller and its stop rules.
+
+## 2026-11-19 · Checkpoint 3 passed
+
+RG confirmed the Checkpoint 3 studio test passed. Every control moved only the selected camera, and every move stopped on release, window focus loss, camera switch, Stop all and cable pull. The RP50 still worked afterwards.
