@@ -49,3 +49,11 @@ These are now the app's default settings, so a fresh install starts in the right
 ## 2026-11-19 · Checkpoint 3 passed
 
 RG confirmed the Checkpoint 3 studio test passed. Every control moved only the selected camera, and every move stopped on release, window focus loss, camera switch, Stop all and cable pull. The RP50 still worked afterwards.
+
+## 2026-11-19 · Not in v1: Scene files, Camera OSD menu, USER buttons
+
+**Answered by RG before Checkpoint 4** (brief's open question "Not in v1").
+
+- **What:** Cam Controller v1 leaves out Scene/Mode file switching, the camera's on-screen setup menu (OSD) and the RP50's USER buttons. The RP50 stays connected for these.
+- **Why:** they are one-off setup tools, not live-show controls. Leaving out the OSD menu also means the app can never put the camera's menu on its video output by accident.
+- **Checkpoint 4 scope:** gain, master pedestal, R/B gain, R/B pedestal (only if the camera has it), white balance mode with AWB/ABB, shutter (including Synchro-Scan for LED screens) and detail.
