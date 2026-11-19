@@ -142,7 +142,6 @@ RG confirmed on 19 Nov 2026 that the HE2 is not one of the show cameras, so v1 h
 | Item | Confirmed by |
 |---|---|
 | Which AW-HE40 the crew calls Cam 1 / 2 / 3 (the RP50 doesn't show its IPs) | Checkpoint 2: assign on the settings screen, then check each tile against the studio monitor |
-| Nothing moved during the probe | RG (Checkpoint 1 test) |
 | Detail (`QDT`) and fine pedestal (`QTP`) original values | The app reads and logs them before Checkpoint 4 changes anything |
 | Whether R/B pedestal exists on the HE40 at all | Checkpoint 4, by checking the camera's menu |
 | Preset bitmap bit order, and that `#C` (delete) works on the HE40 | Checkpoint 6 |

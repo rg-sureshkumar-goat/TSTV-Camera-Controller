@@ -143,7 +143,9 @@ Decoded from `#PE00` (presets 1–40), `#PE01` (41–80) and `#PE02` (81–100),
 - [x] The report finds all three cameras. It found three AW-HE40s, plus an AW-HE2.
 - [x] Each camera answers the model query (`QID`).
 - [x] The IPs match the RP50's SYSTEM menu. The IPs aren't shown on the RP50, so RG confirmed the three AW-HE40s are the show cameras instead.
-- [ ] Nothing moved, zoomed, refocused or changed picture during the probe.
+- [x] Nothing moved, zoomed, refocused or changed picture during the probe.
+
+**Checkpoint 1 passed — confirmed by RG on 19 Nov 2026.**
 - [x] The RP50 still controls all three cameras afterwards.
 
 ## Raw report
