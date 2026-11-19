@@ -1,10 +1,12 @@
 import { EventEmitter } from 'node:events'
-import type { CameraConfig, CameraSlot, CameraStatus, CameraValues } from '@shared/types'
+import type { CameraConfig, CameraSlot, CameraStatus, CameraValues, LensAction } from '@shared/types'
 import { CommandQueue, type Sender } from './commandQueue'
+import { MotionController } from './motionController'
 import {
   decodeAutoManual,
   decodeGain,
   decodeHexPosition,
+  decodeIrisPosition,
   decodePower,
   decodePresetBlock,
   decodeShutter,
@@ -36,6 +38,7 @@ export type SenderFactory = (ip: string) => Sender
  */
 export class CameraConnection extends EventEmitter {
   private queue: CommandQueue | null = null
+  private motion: MotionController | null = null
   private timer: NodeJS.Timeout | null = null
   private running = false
   private failures = 0
@@ -69,8 +72,61 @@ export class CameraConnection extends EventEmitter {
     this.running = false
     if (this.timer) clearTimeout(this.timer)
     this.timer = null
+    this.motion?.stopAll('app closing') // queued as priority, so it is still sent after close()
     this.queue?.close()
+    this.motion?.dispose()
     this.queue = null
+    this.motion = null
+  }
+
+  // ---------- movement and lens (Checkpoint 3) ----------
+
+  private get canMove(): boolean {
+    return this.running && this.current.state === 'connected' && !!this.motion
+  }
+
+  panTilt(pan: number, tilt: number, speed: number): void {
+    if (pan === 0 && tilt === 0) this.motion?.stop('panTilt')
+    else if (this.canMove) this.motion!.setPanTilt(pan, tilt, speed)
+    else if (process.env.CAMCTRL_DEBUG_MOTION === '1') console.log(`[${this.config.name}] ignored pan/tilt: camera ${this.current.state}`)
+  }
+
+  zoom(direction: number, speed: number): void {
+    if (direction === 0) this.motion?.stop('zoom')
+    else if (this.canMove) this.motion!.setZoom(direction, speed)
+  }
+
+  focus(direction: number, speed: number): void {
+    if (direction === 0) this.motion?.stop('focus')
+    else if (this.canMove) this.motion!.setFocus(direction, speed)
+  }
+
+  keepalive(): void {
+    this.motion?.keepalive()
+  }
+
+  stopMotion(reason: string): void {
+    this.motion?.stopAll(reason)
+  }
+
+  async lens(action: LensAction): Promise<void> {
+    const queue = this.queue
+    if (!queue || this.current.state !== 'connected') throw new Error(`${this.config.name} is not connected.`)
+    let command: CameraCommand
+    if (action.kind === 'autoFocus') command = ptz(action.on ? '#D11' : '#D10')
+    else if (action.kind === 'autoIris') command = ptz(action.on ? '#D31' : '#D30')
+    else if (action.kind === 'onePushFocus') command = cam('OSE:69:1')
+    else {
+      const p = Math.min(99, Math.max(1, Math.round(action.position)))
+      command = ptz(`#I${String(p).padStart(2, '0')}`)
+    }
+    const reply = await queue.enqueue(command, { priority: true })
+    this.lastValuesAt = 0 // re-read the camera's values on the next heartbeat
+    const parsed = reply.status === 200 ? parseReply(reply.body) : undefined
+    if (!parsed || parsed.kind === 'error') {
+      const why = parsed?.kind === 'error' && parsed.code === 3 ? 'not allowed in the camera’s current mode' : `camera replied ${reply.status} ${reply.body}`
+      throw new Error(`${this.config.name}: ${why}`)
+    }
   }
 
   setConfig(config: CameraConfig): void {
@@ -101,9 +157,19 @@ export class CameraConnection extends EventEmitter {
 
   private resetForConfig(): void {
     this.generation++
+    // Stop the old camera before letting go of it. Stops are priority jobs, so close() still sends them.
+    this.motion?.stopAll('camera IP changed')
     this.queue?.close()
+    this.motion?.dispose()
     const ip = this.config.ip.trim()
     this.queue = ip ? new CommandQueue(this.makeSender(ip)) : null
+    const queue = this.queue
+    this.motion = queue
+      ? new MotionController(
+          (command, opts) => queue.enqueue(command, opts),
+          (msg) => console.log(`[${this.config.name} ${ip}] ${msg}`)
+        )
+      : null
     this.failures = 0
     this.lastValuesAt = 0
     this.lastPresetsAt = 0
@@ -148,7 +214,8 @@ export class CameraConnection extends EventEmitter {
     if (!reply) {
       this.failures++
       if (this.failures >= FAILURES_BEFORE_OFFLINE && this.current.state !== 'offline') {
-        queue.clearPending('Camera offline')
+        queue.clearPending('Camera offline') // drops queries only; stops are kept
+        this.motion?.stopAll('connection lost') // retried until the camera confirms it
         this.update({
           state: 'offline',
           message: `No answer from ${this.config.ip}. Check the Ethernet cable and that this laptop is on the camera network.`
@@ -236,6 +303,8 @@ export class CameraConnection extends EventEmitter {
       if (rs) values.irisMode = decodeAutoManual(rs, 'ORS:')
       const gz = await ask(ptz('#GZ'))
       if (gz) values.zoomPos = decodeHexPosition(gz, 'gz')
+      const gi = await ask(ptz('#GI'))
+      if (gi) values.irisPos = decodeIrisPosition(gi)
 
       if (includePresets) {
         const blocks: number[] = []

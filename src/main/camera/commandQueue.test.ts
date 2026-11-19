@@ -41,9 +41,9 @@ describe('per-camera command queue', () => {
     ])
   })
 
-  it('refuses write commands before Checkpoint 3, without sending anything', async () => {
+  it('refuses commands outside the safety gate, without sending anything', async () => {
     const { queue, sends } = setup()
-    expect(() => queue.enqueue({ endpoint: 'aw_ptz', cmd: '#PTS0199' })).toThrow(BlockedCommandError)
+    expect(() => queue.enqueue({ endpoint: 'aw_ptz', cmd: '#M05' })).toThrow(BlockedCommandError)
     expect(() => queue.enqueue({ endpoint: 'aw_ptz', cmd: '#R00' })).toThrow(BlockedCommandError)
     expect(() => queue.enqueue({ endpoint: 'aw_cam', cmd: 'OGU:08' })).toThrow(BlockedCommandError)
     await new Promise((r) => setTimeout(r, 20))

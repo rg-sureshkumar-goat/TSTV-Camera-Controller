@@ -12,7 +12,7 @@ import {
   parseReply
 } from './protocol'
 
-describe('read-only safety gate (until Checkpoint 3)', () => {
+describe('safety gate', () => {
   it('allows the query commands the app uses', () => {
     for (const cmd of ['#O', '#APC', '#GZ', '#GF', '#GI', '#D1', '#D3', '#S', '#PE00', '#PE01', '#PE02', '#UPVS', '#LPI']) {
       expect(isReadOnly({ endpoint: 'aw_ptz', cmd })).toBe(true)
@@ -22,15 +22,30 @@ describe('read-only safety gate (until Checkpoint 3)', () => {
     }
   })
 
-  it('blocks every movement, preset and setting command', () => {
-    const writes = [
+  it('allows the Checkpoint 3 movement and lens commands', () => {
+    const moves = [
       { endpoint: 'aw_ptz', cmd: '#PTS5050' },
       { endpoint: 'aw_ptz', cmd: '#PTS0199' },
       { endpoint: 'aw_ptz', cmd: '#Z50' },
+      { endpoint: 'aw_ptz', cmd: '#Z01' },
       { endpoint: 'aw_ptz', cmd: '#F99' },
       { endpoint: 'aw_ptz', cmd: '#I50' },
       { endpoint: 'aw_ptz', cmd: '#D11' },
       { endpoint: 'aw_ptz', cmd: '#D30' },
+      { endpoint: 'aw_cam', cmd: 'OSE:69:1' }
+    ] as const
+    for (const c of moves) expect(() => assertAllowed(c), `${c.endpoint} ${c.cmd}`).not.toThrow()
+  })
+
+  it('blocks presets, image settings, power, absolute moves and malformed values', () => {
+    const writes = [
+      { endpoint: 'aw_ptz', cmd: '#PTS0050' },
+      { endpoint: 'aw_ptz', cmd: '#PTS100' },
+      { endpoint: 'aw_ptz', cmd: '#Z00' },
+      { endpoint: 'aw_ptz', cmd: '#Z5' },
+      { endpoint: 'aw_ptz', cmd: '#F100' },
+      { endpoint: 'aw_ptz', cmd: '#D12' },
+      { endpoint: 'aw_ptz', cmd: '#AXZFFF' },
       { endpoint: 'aw_ptz', cmd: '#R00' },
       { endpoint: 'aw_ptz', cmd: '#M05' },
       { endpoint: 'aw_ptz', cmd: '#C05' },
@@ -41,7 +56,6 @@ describe('read-only safety gate (until Checkpoint 3)', () => {
       { endpoint: 'aw_cam', cmd: 'OGU:08' },
       { endpoint: 'aw_cam', cmd: 'OWS' },
       { endpoint: 'aw_cam', cmd: 'OAS' },
-      { endpoint: 'aw_cam', cmd: 'OSE:69:1' },
       { endpoint: 'aw_cam', cmd: 'XSF:1' },
       { endpoint: 'aw_cam', cmd: 'QGU:08' },
       { endpoint: 'aw_cam', cmd: 'Q' }

@@ -32,6 +32,7 @@ export interface CameraValues {
   focusMode?: 'auto' | 'manual' // QAF
   irisMode?: 'auto' | 'manual' // QRS
   zoomPos?: number // #GZ, 0x555 (wide) – 0xFFF (tele)
+  irisPos?: number // #GI, converted to 1 (closed) – 99 (open), same scale as the iris control
   presets?: number[] // #PE00/#PE01/#PE02, preset numbers 1–100 in use
 }
 
@@ -75,8 +76,25 @@ export interface DiscoveryResult {
   cameras: DiscoveredCamera[]
 }
 
+export type LensAction =
+  | { kind: 'autoFocus'; on: boolean }
+  | { kind: 'onePushFocus' }
+  | { kind: 'autoIris'; on: boolean }
+  | { kind: 'iris'; position: number } // 1 (closed) – 99 (open)
+
 /** The API the preload script exposes to the window as `window.camApi`. */
 export interface CamApi {
+  /** Pan/tilt from the joystick: −1…1 each (right/up positive), speed level 1–5. (0, 0) stops. */
+  panTilt(slot: CameraSlot, pan: number, tilt: number, speed: number): void
+  /** Zoom: −1 wide, 0 stop, 1 tele. */
+  zoom(slot: CameraSlot, direction: number, speed: number): void
+  /** Manual focus: −1 near, 0 stop, 1 far. */
+  focus(slot: CameraSlot, direction: number, speed: number): void
+  /** Sent every ~200 ms while a movement control is held (dead-man switch). */
+  keepalive(slot: CameraSlot): void
+  /** Stop every move on one camera, or on all cameras when slot is omitted. */
+  stopMotion(slot?: CameraSlot): void
+  lens(slot: CameraSlot, action: LensAction): Promise<void>
   getSettings(): Promise<AppSettings>
   saveSettings(settings: AppSettings): Promise<AppSettings>
   discover(): Promise<DiscoveryResult>

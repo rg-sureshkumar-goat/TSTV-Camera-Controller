@@ -34,12 +34,15 @@ export class CameraManager extends EventEmitter {
     return this.connections.map((c) => c.status)
   }
 
+  camera(slot: number): CameraConnection | undefined {
+    return Number.isInteger(slot) ? this.connections[slot] : undefined
+  }
+
   /**
-   * Safety hook: called when the window loses focus, is hidden, or the app quits.
-   * Checkpoint 2 sends no movement, so there is nothing to stop yet.
-   * Checkpoint 3 sends pan/tilt, zoom and focus stop commands to every camera from here.
+   * Safety hook: called when the window loses focus, hides, crashes or the app
+   * quits. Sends pan/tilt, zoom and focus stops to every camera the app moved.
    */
-  stopAllMotion(_reason: string): void {
-    // Intentionally empty until Checkpoint 3 adds movement.
+  stopAllMotion(reason: string): void {
+    for (const c of this.connections) c.stopMotion(reason)
   }
 }

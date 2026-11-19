@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import fs from 'node:fs'
 import path from 'node:path'
-import type { AppSettings, NetworkStatus } from '@shared/types'
+import type { AppSettings, LensAction, NetworkStatus } from '@shared/types'
 import { CameraManager } from './camera/cameraManager'
 import { discoverCameras } from './discovery'
 import { checkNetwork } from './network'
@@ -47,8 +47,7 @@ function createWindow(): void {
 
   mainWindow.once('ready-to-show', () => mainWindow?.show())
 
-  // SAFETY: any move must stop when the window loses focus, is hidden or closes.
-  // (No movement exists before Checkpoint 3; the hook is wired now so it can't be forgotten.)
+  // SAFETY: every move stops when the window loses focus, hides, minimizes, closes, crashes or hangs.
   mainWindow.on('blur', () => manager.stopAllMotion('window lost focus'))
   mainWindow.on('hide', () => manager.stopAllMotion('window hidden'))
   mainWindow.on('minimize', () => manager.stopAllMotion('window minimized'))
@@ -69,6 +68,19 @@ function createWindow(): void {
     void mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
+  // Developer self-test against the fake cameras (CAMCTRL_SELFTEST=1). Never runs otherwise.
+  if (process.env.CAMCTRL_SELFTEST === '1') {
+    mainWindow.webContents.once('did-finish-load', () => {
+      setTimeout(() => {
+        void import('./devSelfTest').then(({ runSelfTest }) =>
+          runSelfTest(mainWindow!, (m) => console.log(`[selftest ${new Date().toISOString().slice(11, 23)}] ${m}`)).catch(
+            (err) => console.log(`[selftest ${new Date().toISOString().slice(11, 23)}] FAILED: ${(err as Error).stack}`)
+          )
+        )
+      }, 4000)
+    })
+  }
+
   // Developer check: CAMCTRL_SCREENSHOT=/path/shot.png saves a picture of the window, then quits.
   const shotPath = process.env.CAMCTRL_SCREENSHOT
   if (shotPath) {
@@ -82,7 +94,25 @@ function createWindow(): void {
   }
 }
 
+/** Numbers from the window are untrusted: anything odd becomes 0 (= stop). */
+const num = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ? v : 0)
+
 function registerIpc(): void {
+  ipcMain.on('motion:panTilt', (_e, slot, pan, tilt, speed) => manager.camera(slot)?.panTilt(num(pan), num(tilt), num(speed)))
+  ipcMain.on('motion:zoom', (_e, slot, direction, speed) => manager.camera(slot)?.zoom(num(direction), num(speed)))
+  ipcMain.on('motion:focus', (_e, slot, direction, speed) => manager.camera(slot)?.focus(num(direction), num(speed)))
+  ipcMain.on('motion:keepalive', (_e, slot) => manager.camera(slot)?.keepalive())
+  ipcMain.on('motion:stop', (_e, slot) => {
+    if (slot === undefined || slot === null) manager.stopAllMotion('stop button')
+    else manager.camera(slot)?.stopMotion('released')
+  })
+  ipcMain.handle('lens:action', async (_e, slot, action: LensAction) => {
+    const cam = manager.camera(slot)
+    if (!cam) throw new Error('No such camera')
+    const kinds = ['autoFocus', 'onePushFocus', 'autoIris', 'iris']
+    if (!action || !kinds.includes(action.kind)) throw new Error('Unknown lens action')
+    await cam.lens(action)
+  })
   ipcMain.handle('settings:get', () => settings)
   ipcMain.handle('settings:save', (_e, next: AppSettings) => {
     settings = store.save(next)

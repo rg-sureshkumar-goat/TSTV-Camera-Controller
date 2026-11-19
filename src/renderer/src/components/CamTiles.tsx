@@ -18,7 +18,9 @@ export function CamTiles({ statuses, selected, onSelect }: Props): React.JSX.Ele
           title={s.message}
         >
           <div className="tile-top">
-            <span className="tile-name">{s.name}</span>
+            <span className="tile-name">
+              {s.name} <span className="tile-key">key {s.slot + 1}</span>
+            </span>
             {s.slot === selected && <span className="tile-badge">Selected</span>}
           </div>
           <div className="tile-status">

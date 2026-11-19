@@ -10,12 +10,27 @@ export interface CameraCommand {
 }
 
 /**
- * SAFETY GATE. Until Checkpoint 3, the app may send cameras only read-only
- * query commands. Every command goes through `assertAllowed`, so a write
- * command can't slip through by accident. Checkpoint 3 adds an explicit,
- * reviewed list of movement commands here.
+ * SAFETY GATE. Every command goes through `assertAllowed`. Allowed are:
+ *  - read-only queries (always), and
+ *  - the movement and lens commands below (from Checkpoint 3).
+ * Everything else is refused: image settings (Checkpoint 4), presets
+ * recall/store/delete (Checkpoint 6), power, absolute positioning, and any
+ * command not listed here. Widen this list only in the checkpoint that needs it.
  */
-export const WRITE_COMMANDS_ENABLED = false
+const TWO_DIGIT_SPEED = '(0[1-9]|[1-9][0-9])' // 01–99; 50 = stop
+const MOVEMENT_AND_LENS: { endpoint: Endpoint; pattern: RegExp; what: string }[] = [
+  { endpoint: 'aw_ptz', pattern: new RegExp(`^#PTS${TWO_DIGIT_SPEED}${TWO_DIGIT_SPEED}$`), what: 'pan/tilt speed (5050 = stop)' },
+  { endpoint: 'aw_ptz', pattern: new RegExp(`^#Z${TWO_DIGIT_SPEED}$`), what: 'zoom speed (50 = stop)' },
+  { endpoint: 'aw_ptz', pattern: new RegExp(`^#F${TWO_DIGIT_SPEED}$`), what: 'focus speed (50 = stop)' },
+  { endpoint: 'aw_ptz', pattern: new RegExp(`^#I${TWO_DIGIT_SPEED}$`), what: 'iris position 01 (closed) – 99 (open)' },
+  { endpoint: 'aw_ptz', pattern: /^#D1[01]$/, what: 'auto focus off/on' },
+  { endpoint: 'aw_ptz', pattern: /^#D3[01]$/, what: 'auto iris off/on' },
+  { endpoint: 'aw_cam', pattern: /^OSE:69:1$/, what: 'one-push auto focus' }
+]
+
+export function isMovementOrLens(command: CameraCommand): boolean {
+  return MOVEMENT_AND_LENS.some((m) => m.endpoint === command.endpoint && m.pattern.test(command.cmd))
+}
 
 /** aw_ptz queries: commands "with no value" in Panasonic's spec. */
 const PTZ_QUERIES = new Set([
@@ -48,15 +63,20 @@ export function isReadOnly(command: CameraCommand): boolean {
 
 export class BlockedCommandError extends Error {
   constructor(command: CameraCommand) {
-    super(`Blocked ${command.endpoint} command "${command.cmd}": only read-only queries are allowed before Checkpoint 3.`)
+    super(`Blocked ${command.endpoint} command "${command.cmd}": not a query or an allowed movement/lens command.`)
     this.name = 'BlockedCommandError'
   }
 }
 
 export function assertAllowed(command: CameraCommand): void {
-  if (isReadOnly(command)) return
-  if (!WRITE_COMMANDS_ENABLED) throw new BlockedCommandError(command)
+  if (isReadOnly(command) || isMovementOrLens(command)) return
+  throw new BlockedCommandError(command)
 }
+
+/** Stop commands: pan/tilt, zoom and focus speed back to 50. */
+export const STOP_PAN_TILT: CameraCommand = { endpoint: 'aw_ptz', cmd: '#PTS5050' }
+export const STOP_ZOOM: CameraCommand = { endpoint: 'aw_ptz', cmd: '#Z50' }
+export const STOP_FOCUS: CameraCommand = { endpoint: 'aw_ptz', cmd: '#F50' }
 
 /** Path + query for a command. `#` must be sent as %23. */
 export function commandPath(command: CameraCommand): string {
@@ -145,6 +165,15 @@ export function decodeHexPosition(reply: string, prefix: string): number | undef
   const v = valueAfter(reply, prefix)
   if (v === undefined || !/^[0-9A-Fa-f]{3}$/.test(v)) return undefined
   return parseInt(v, 16)
+}
+
+/** #GI → "gi" + 3 hex iris position (555 closed – FFF open) + 0/1 (manual/auto). Returns 1–99 like #I. */
+export function decodeIrisPosition(reply: string): number | undefined {
+  const v = valueAfter(reply, 'gi')
+  if (v === undefined || !/^[0-9A-Fa-f]{3}[01]?$/.test(v)) return undefined
+  const raw = parseInt(v.slice(0, 3), 16)
+  if (raw < 0x555 || raw > 0xfff) return undefined
+  return Math.round(((raw - 0x555) / (0xfff - 0x555)) * 98) + 1
 }
 
 /**
