@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Raw probe output (the cleaned-up report goes into docs/PROBE_RESULTS.md)
+tools/tstv_camera_probe_report.txt
