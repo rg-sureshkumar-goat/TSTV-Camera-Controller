@@ -13,3 +13,16 @@ Choices made during the build, with the reason, so later checkpoints follow them
   - The whole app is one language, and building it only needs Node.js, with no Rust toolchain. That makes it easier for future TSTV students to maintain.
   - Video: MJPEG plays directly. RTSP-only cameras can be handled by bundling the free ffmpeg.
 - **Cost accepted:** a larger download (about 100 MB, against about 10 MB for Tauri) and higher memory use.
+
+## 2026-11-19 · Who runs the app: a separate camera operator
+
+**Answered by RG before Checkpoint 2** (brief's open question "Who runs it").
+
+- **What:** on show day, a dedicated camera operator runs Cam Controller. The TD and producer don't.
+- **Effect on the design:** the main screen can show the full Camera Control Panel at once, with no "simple mode" and nothing hidden behind toggles. Labels stay in plain English, and keyboard shortcuts are a convenience, not the main way to work.
+
+## 2026-11-19 · Camera login: none needed
+
+**Answered by the Checkpoint 1 probe** (brief's open question "Camera login").
+
+- All three AW-HE40s accept control and video with no username or password (User auth is off). The app needs no login screen in v1. If a camera starts replying HTTP 401, the app says so plainly instead of calling it offline.
