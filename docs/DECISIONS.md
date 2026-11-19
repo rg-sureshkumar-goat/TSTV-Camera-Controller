@@ -38,3 +38,10 @@ Choices made during the build, with the reason, so later checkpoints follow them
 | Cam 3 | `192.168.0.12` |
 
 These are now the app's default settings, so a fresh install starts in the right order. The fake cameras (`npm run mock-cameras`) use the same order.
+
+## 2026-11-19 · Pan/tilt input: on-screen joystick only
+
+**Answered by RG before Checkpoint 3** (brief's open question "Pan/tilt input").
+
+- **What:** pan/tilt is driven by an on-screen joystick (mouse or trackpad) only. v1 has no arrow-key or USB game-controller pan/tilt.
+- **Effect:** keyboard shortcuts stay limited to selecting cameras (1, 2, 3). A controller can be added later without changing the camera code, because every move goes through the same main-process motion controller and its stop rules.
